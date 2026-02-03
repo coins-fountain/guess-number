@@ -140,88 +140,95 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                         ? Colors.red.withValues(alpha: 0.15)
                         : Colors.transparent,
                   ),
-                  Center(
-                    child: Container(
-                      width: min(320, screenWidth - 24),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            NumberFieldWidget(
-                              c: _minController,
-                              title: 'Minimum',
-                              enabled: !started,
-                            ),
-                            const SizedBox(height: 12),
-                            NumberFieldWidget(
-                              c: _maxController,
-                              title: 'Maximum',
-                              enabled: !started,
-                            ),
-
-                            if (started &&
-                                widget.game.currentLower != null &&
-                                widget.game.currentUpper != null)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                child: DecisionRangeBar(
-                                  min: int.parse(_minController.text),
-                                  max: int.parse(_maxController.text),
-                                  lower: widget.game.currentLower!,
-                                  upper: widget.game.currentUpper!,
-                                ),
+                  AnimatedPadding(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOut,
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: min(320, screenWidth - 24),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              NumberFieldWidget(
+                                c: _minController,
+                                title: 'Minimum',
+                                enabled: !started,
                               ),
-
-                            NumberFieldWidget(
-                              c: _guessController,
-                              title: 'Your guess',
-                              enabled: started,
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 300),
-                                  transitionBuilder: (child, anim) {
-                                    final offset = Tween(
-                                      begin: const Offset(0.1, 0),
-                                      end: Offset.zero,
-                                    ).animate(anim);
-                                    return SlideTransition(
-                                      position: offset,
-                                      child: child,
-                                    );
-                                  },
-                                  child: Text(message, key: ValueKey(message)),
-                                ),
-                                if (message.contains('Guess Range'))
-                                  const Padding(
-                                    padding: EdgeInsets.only(left: 6),
-                                    child: AnimatedEyes(),
+                              const SizedBox(height: 12),
+                              NumberFieldWidget(
+                                c: _maxController,
+                                title: 'Maximum',
+                                enabled: !started,
+                              ),
+                    
+                              if (started &&
+                                  widget.game.currentLower != null &&
+                                  widget.game.currentUpper != null)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
                                   ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 16),
-                            GameButtonWidget(
-                              text: started ? 'GUESS 🎯' : 'START GAME 🚀',
-                              onTap: () {
-                                HapticFeedback.selectionClick();
-                                started ? submitGuess() : startGame();
-                              },
-                              color: started
-                                  ? const Color(0xFF4CAF50)
-                                  : const Color(0xFF6C63FF),
-                            ),
-                          ],
+                                  child: DecisionRangeBar(
+                                    min: int.parse(_minController.text),
+                                    max: int.parse(_maxController.text),
+                                    lower: widget.game.currentLower!,
+                                    upper: widget.game.currentUpper!,
+                                  ),
+                                ),
+                    
+                              NumberFieldWidget(
+                                c: _guessController,
+                                title: 'Your guess',
+                                enabled: started,
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 300),
+                                    transitionBuilder: (child, anim) {
+                                      final offset = Tween(
+                                        begin: const Offset(0.1, 0),
+                                        end: Offset.zero,
+                                      ).animate(anim);
+                                      return SlideTransition(
+                                        position: offset,
+                                        child: child,
+                                      );
+                                    },
+                                    child: Text(message, key: ValueKey(message)),
+                                  ),
+                                  if (message.contains('Guess Range'))
+                                    const Padding(
+                                      padding: EdgeInsets.only(left: 6),
+                                      child: AnimatedEyes(),
+                                    ),
+                                ],
+                              ),
+                    
+                              const SizedBox(height: 16),
+                              GameButtonWidget(
+                                text: started ? 'GUESS 🎯' : 'START GAME 🚀',
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  started ? submitGuess() : startGame();
+                                },
+                                color: started
+                                    ? const Color(0xFF4CAF50)
+                                    : const Color(0xFF6C63FF),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

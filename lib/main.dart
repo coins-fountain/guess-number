@@ -14,12 +14,6 @@ void main() async {
 
   await MobileAds.instance.initialize();
 
-  MobileAds.instance.updateRequestConfiguration(
-    RequestConfiguration(
-      testDeviceIds: ['88E54808B5CC70FD7D62D33C4B7F605B'],
-    ),
-  );
-
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
