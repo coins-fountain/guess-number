@@ -13,8 +13,6 @@ class AdController extends GetxController {
 
   RewardedAd? rewardedAd;
   var isRewardedAdLoaded = false.obs;
-
-  // Test Ad Unit IDs
   String get bannerAdUnitId {
     if (Platform.isAndroid) {
       return 'ca-app-pub-3940256099942544/6300978111';
@@ -49,6 +47,8 @@ class AdController extends GetxController {
     _loadInterstitialAd();
     _loadRewardedAd();
   }
+
+
 
   @override
   void onClose() {
