@@ -1,3 +1,4 @@
 -keep class com.google.android.gms.ads.** { *; }
 -keep interface com.google.android.gms.ads.** { *; }
 -keep class com.google.android.gms.common.** { *; }
+-keep class io.flutter.plugins.googlemobileads.** { *; }
