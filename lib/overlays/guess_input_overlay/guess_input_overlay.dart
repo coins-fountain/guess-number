@@ -63,7 +63,8 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
     }
 
     final maxHints = max(1, min(4, rangeSize - 1));
-    final candidates = List<int>.generate(rangeSize, (i) => minValue + i)..shuffle();
+    final candidates = List<int>.generate(rangeSize, (i) => minValue + i)
+      ..shuffle();
 
     for (final v in candidates) {
       if (result.length >= maxHints) break;
@@ -97,7 +98,7 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
 
     final result = widget.game.checkGuess(guess);
 
-    final isWin = result.contains('You win');
+    // final isWin = result.contains('You win'); // Unused
 
     if (widget.game.isGameOver) {
       setState(() => _showLoseFlash = true);
@@ -135,25 +136,42 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                 children: [
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    color: _showLoseFlash ? Colors.red.withOpacity(0.15) : Colors.transparent,
+                    color: _showLoseFlash
+                        ? Colors.red.withValues(alpha: 0.15)
+                        : Colors.transparent,
                   ),
                   Center(
                     child: Container(
                       width: min(320, screenWidth - 24),
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            NumberFieldWidget(c: _minController, title: 'Minimum', enabled: !started),
+                            NumberFieldWidget(
+                              c: _minController,
+                              title: 'Minimum',
+                              enabled: !started,
+                            ),
                             const SizedBox(height: 12),
-                            NumberFieldWidget(c: _maxController, title: 'Maximum', enabled: !started),
+                            NumberFieldWidget(
+                              c: _maxController,
+                              title: 'Maximum',
+                              enabled: !started,
+                            ),
 
-                            if (started && widget.game.currentLower != null && widget.game.currentUpper != null)
+                            if (started &&
+                                widget.game.currentLower != null &&
+                                widget.game.currentUpper != null)
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
                                 child: DecisionRangeBar(
                                   min: int.parse(_minController.text),
                                   max: int.parse(_maxController.text),
@@ -162,19 +180,33 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                                 ),
                               ),
 
-                            NumberFieldWidget(c: _guessController, title: 'Your guess', enabled: started),
+                            NumberFieldWidget(
+                              c: _guessController,
+                              title: 'Your guess',
+                              enabled: started,
+                            ),
                             const SizedBox(height: 12),
                             Row(
                               children: [
                                 AnimatedSwitcher(
                                   duration: const Duration(milliseconds: 300),
                                   transitionBuilder: (child, anim) {
-                                    final offset = Tween(begin: const Offset(0.1, 0), end: Offset.zero).animate(anim);
-                                    return SlideTransition(position: offset, child: child);
+                                    final offset = Tween(
+                                      begin: const Offset(0.1, 0),
+                                      end: Offset.zero,
+                                    ).animate(anim);
+                                    return SlideTransition(
+                                      position: offset,
+                                      child: child,
+                                    );
                                   },
                                   child: Text(message, key: ValueKey(message)),
                                 ),
-                                if (message.contains('Guess Range')) const Padding(padding: EdgeInsets.only(left: 6), child: AnimatedEyes()),
+                                if (message.contains('Guess Range'))
+                                  const Padding(
+                                    padding: EdgeInsets.only(left: 6),
+                                    child: AnimatedEyes(),
+                                  ),
                               ],
                             ),
 
@@ -185,7 +217,9 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                                 HapticFeedback.selectionClick();
                                 started ? submitGuess() : startGame();
                               },
-                              color: started ? const Color(0xFF4CAF50) : const Color(0xFF6C63FF),
+                              color: started
+                                  ? const Color(0xFF4CAF50)
+                                  : const Color(0xFF6C63FF),
                             ),
                           ],
                         ),
@@ -196,7 +230,8 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
               ),
             ),
             Obx(() {
-              if (adController.isBannerAdLoaded.value && adController.bannerAd != null) {
+              if (adController.isBannerAdLoaded.value &&
+                  adController.bannerAd != null) {
                 return Container(
                   alignment: Alignment.center,
                   width: adController.bannerAd!.size.width.toDouble(),

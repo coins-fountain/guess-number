@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 
 class NumberFieldWidget extends StatelessWidget {
- final  TextEditingController c;
+  final TextEditingController c;
   final String title;
   final bool enabled;
-  const NumberFieldWidget({super.key,required this.c,required this.enabled,required this.title});
+  const NumberFieldWidget({
+    super.key,
+    required this.c,
+    required this.enabled,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return  Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -28,12 +33,10 @@ class NumberFieldWidget extends StatelessWidget {
             hintText: title,
             filled: true,
             fillColor: Colors.grey.shade50,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ],
-    );;
+    );
   }
 }

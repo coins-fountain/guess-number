@@ -70,15 +70,12 @@ class _DecisionRangeBarState extends State<DecisionRangeBar> {
                     height: 14,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF42A5F5),
-                          Color(0xFF7E57C2),
-                        ],
+                        colors: [Color(0xFF42A5F5), Color(0xFF7E57C2)],
                       ),
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.blue.withOpacity(0.35),
+                          color: Colors.blue.withValues(alpha: 0.35),
                           blurRadius: 8,
                         ),
                       ],

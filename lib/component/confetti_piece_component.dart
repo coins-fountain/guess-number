@@ -2,8 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../go_grey.dart';
 
-class ConfettiPiece extends PositionComponent
-    with HasGameRef<GoGrey> {
+class ConfettiPiece extends PositionComponent with HasGameReference<GoGrey> {
   final Paint paint;
   final Vector2 velocity;
   final double rotationSpeed;
@@ -24,7 +23,7 @@ class ConfettiPiece extends PositionComponent
     position += velocity * dt;
     angle += rotationSpeed * dt;
 
-    if (position.y > gameRef.size.y + 20) {
+    if (position.y > game.size.y + 20) {
       removeFromParent();
     }
   }
