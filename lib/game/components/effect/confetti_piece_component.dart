@@ -1,18 +1,13 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../go_grey.dart';
+import 'package:guess_number_game/game/guess_number_game.dart';
 
-class ConfettiPiece extends PositionComponent with HasGameReference<GoGrey> {
+class ConfettiPiece extends PositionComponent with HasGameReference<GuessNumberGame> {
   final Paint paint;
   final Vector2 velocity;
   final double rotationSpeed;
 
-  ConfettiPiece({
-    required Vector2 position,
-    required this.paint,
-    required this.velocity,
-    required this.rotationSpeed,
-  }) {
+  ConfettiPiece({required Vector2 position, required this.paint, required this.velocity, required this.rotationSpeed}) {
     size = Vector2.all(8);
     anchor = Anchor.center;
     this.position = position;

@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 class AnimatedEyes extends StatefulWidget {
@@ -9,17 +8,13 @@ class AnimatedEyes extends StatefulWidget {
   State<AnimatedEyes> createState() => _AnimatedEyesState();
 }
 
-class _AnimatedEyesState extends State<AnimatedEyes>
-    with SingleTickerProviderStateMixin {
+class _AnimatedEyesState extends State<AnimatedEyes> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat(reverse: true);
   }
 
   @override
@@ -40,14 +35,10 @@ class _AnimatedEyesState extends State<AnimatedEyes>
           offset: Offset(dx, 0),
           child: Transform.rotate(
             angle: rotate,
-            child: const Text(
-              '👀',
-              style: TextStyle(fontSize: 18),
-            ),
+            child: const Text('👀', style: TextStyle(fontSize: 18)),
           ),
         );
       },
     );
   }
-
 }

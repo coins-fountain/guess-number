@@ -3,11 +3,10 @@ import 'package:flame/game.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:get/get.dart';
-
-import 'go_grey.dart';
+import 'package:guess_number_game/game/guess_number_game.dart';
+import 'package:guess_number_game/overlays/confettie_piece_overlay.dart';
+import 'package:guess_number_game/overlays/guess_game_input_overlay/guess_game_input_overlay.dart';
 import 'controller/ads_controller.dart';
-import 'overlays/confettie_pieve_overlay.dart';
-import 'overlays/guess_input_overlay/guess_input_overlay.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,8 +47,8 @@ class GamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final game = GoGrey();
-    return GameWidget<GoGrey>(
+    final game = GuessNumberGame();
+    return GameWidget<GuessNumberGame>(
       game: game,
       backgroundBuilder: (context) {
         return Container(color: Colors.white);

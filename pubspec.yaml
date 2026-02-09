@@ -28,6 +28,7 @@ flutter:
   assets:
     - assets/
     - assets/images/background/
+    - assets/images/icon/
 
   fonts:
     - family: Baloo2
