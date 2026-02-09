@@ -40,13 +40,31 @@ class GoGrey extends FlameGame {
           ),
       ),
     );
-    final bg = SpriteComponent()
-      ..sprite = await loadSprite('background/background_image.png')
-      ..size = size
-      ..position = Vector2.zero()
-      ..priority = -10;
+    final image = await images.load('background/background_image.png');
+
+    final sprite = Sprite(image);
+    final bg = SpriteComponent(
+      sprite: sprite,
+      anchor: Anchor.center,
+      position: size / 2,
+      priority: -10,
+    );
+
+    final imageSize = Vector2(
+      image.width.toDouble(),
+      image.height.toDouble(),
+    );
+
+    final scaleX = size.x / imageSize.x;
+    final scaleY = size.y / imageSize.y;
+    final scale = max(scaleX, scaleY);
+
+    bg
+      ..size = imageSize
+      ..scale = Vector2.all(scale);
 
     add(bg);
+
 
     overlays.add('GuessInput');
   }

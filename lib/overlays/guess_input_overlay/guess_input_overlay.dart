@@ -27,54 +27,12 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
   final AdController adController = Get.find<AdController>();
 
   bool _showLoseFlash = false;
+  bool _showWinFlash = false;
 
   List<HintItem> hints = [];
   String message = '';
 
-  void generateHintsHardcore() {
-    final target = widget.game.debugTarget;
-    if (target == null) return;
-    final minValue = int.parse(_minController.text);
-    final maxValue = int.parse(_maxController.text);
 
-    final rand = Random();
-    final List<HintItem> result = [];
-
-    final rangeSize = maxValue - minValue + 1;
-
-    int clamp(int v) => v.clamp(minValue, maxValue);
-    if (rangeSize >= 7) {
-      for (int i = 0; i < 2; i++) {
-        final delta = rand.nextInt(3) + 3;
-        final v = clamp(target + (rand.nextBool() ? delta : -delta));
-        if (v != target && !result.any((e) => e.value == v)) {
-          result.add(HintItem(v, '🔥'));
-        }
-      }
-    }
-    if (rangeSize >= 20) {
-      for (int i = 0; i < 2; i++) {
-        final delta = rand.nextInt(20) + 15;
-        final v = clamp(target + (rand.nextBool() ? delta : -delta));
-        if (v != target && !result.any((e) => e.value == v)) {
-          result.add(HintItem(v, '❄️'));
-        }
-      }
-    }
-
-    final maxHints = max(1, min(4, rangeSize - 1));
-    final candidates = List<int>.generate(rangeSize, (i) => minValue + i)
-      ..shuffle();
-
-    for (final v in candidates) {
-      if (result.length >= maxHints) break;
-      if (!result.any((e) => e.value == v)) {
-        result.add(HintItem(v, '❓'));
-      }
-    }
-    result.shuffle();
-    hints = result;
-  }
 
   void startGame() {
     final min = int.tryParse(_minController.text);
@@ -87,36 +45,47 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
 
     widget.game.startGame(min: min, max: max);
 
-    generateHintsHardcore();
-
     setState(() => message = 'Game started! Use the Guess Range');
   }
-
   void submitGuess() {
     final guess = int.tryParse(_guessController.text);
     if (guess == null) return;
-
     final result = widget.game.checkGuess(guess);
-
-    // final isWin = result.contains('You win'); // Unused
-
+    final target = widget.game.debugTarget;
+    if (target == null) return;
+    setState(() {
+      message = result;
+    });
     if (widget.game.isGameOver) {
-      setState(() => _showLoseFlash = true);
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) setState(() => _showLoseFlash = false);
-      });
-    }
-    setState(() => message = result);
-    if (widget.game.isGameOver) {
-      _guessController.clear();
+      bool isWin = result.contains('win');
+      if (isWin) {
+        _triggerFlash(isVictory: true);
+      } else {
+        _triggerFlash(isVictory: false);
+      }
       Future.delayed(const Duration(milliseconds: 400), () {
-        final adController = Get.find<AdController>();
-        adController.showInterstitial(
-          onClosed: () {
-            widget.game.overlays.add('GuessInput');
+        _showGameDialog(
+          title: isWin ? "VICTORY!" : "GAME OVER",
+          subTitle: result,
+          icon: isWin ? Icons.emoji_events_rounded : Icons.sentiment_very_dissatisfied,
+          color: isWin ? Colors.green : Colors.redAccent,
+          onDismiss: () {
+            _guessController.clear();
+            adController.showInterstitial(
+              onClosed: () => widget.game.overlays.add('GuessInput'),
+            );
           },
         );
       });
+    } else {
+      bool isTooLow = guess < target;
+      _showGameDialog(
+        onDismiss: () => _guessController.clear(),
+        title: isTooLow ? "TOO LOW!" : "TOO HIGH!",
+        subTitle: "You have ${widget.game.attemptsLeft} attempts left",
+        icon: isTooLow ? Icons.arrow_circle_up_rounded : Icons.arrow_circle_down_rounded,
+        color: isTooLow ? Colors.orange : Colors.blueAccent,
+      );
     }
   }
 
@@ -134,11 +103,16 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
             Expanded(
               child: Stack(
                 children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    color: _showLoseFlash
-                        ? Colors.red.withValues(alpha: 0.15)
-                        : Colors.transparent,
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Container(
+                        color: _showWinFlash
+                            ? Colors.green.withOpacity(0.4) // Stronger green for win
+                            : _showLoseFlash
+                            ? Colors.red.withOpacity(0.4) // Stronger red for lose
+                            : Colors.transparent,
+                      ),
+                    ),
                   ),
                   AnimatedPadding(
                     duration: const Duration(milliseconds: 250),
@@ -152,7 +126,15 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(24), // Rounder corners
+                          border: Border.all(color: kGameBorderColor, width: kGameBorderWidth),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              offset: Offset(8, 8), // Deep shadow for depth
+                              blurRadius: 0,
+                            ),
+                          ],
                         ),
                         child: SingleChildScrollView(
                           child: Column(
@@ -249,6 +231,82 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
               return const SizedBox.shrink();
             }),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _triggerFlash({required bool isVictory}) {
+    void setFlash(bool val) {
+      if (mounted) {
+        setState(() {
+          if (isVictory) _showWinFlash = val;
+          else _showLoseFlash = val;
+        });
+      }
+    }
+    setFlash(true);
+    Future.delayed(const Duration(milliseconds: 100), () => setFlash(false));
+    Future.delayed(const Duration(milliseconds: 200), () => setFlash(true));
+    Future.delayed(const Duration(milliseconds: 300), () => setFlash(false));
+  }
+
+  void _showGameDialog({
+    required String title,
+    required String subTitle,
+    required IconData icon,
+    required Color color,
+    VoidCallback? onDismiss,
+  }) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false, // Force them to engage with the UI
+      barrierLabel: "GameResult",
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, anim1, anim2) => Center(
+        child: Material(
+          color: Colors.transparent,
+          child: ScaleTransition(
+            scale: CurvedAnimation(parent: anim1, curve: Curves.elasticOut),
+            child: Container(
+              width: 280,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: const Color(0xFF2C2C2C), width: 5),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black38, offset: Offset(0, 10), blurRadius: 0),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 80, color: color),
+                  const SizedBox(height: 12),
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: 1.5),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    subTitle,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 24),
+                  GameButtonWidget(
+                    text: "CONTINUE",
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (onDismiss != null) onDismiss();
+                    },
+                    color: color,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
