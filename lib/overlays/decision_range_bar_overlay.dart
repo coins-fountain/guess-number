@@ -87,9 +87,15 @@ class _DecisionRangeBarState extends State<DecisionRangeBar> {
           },
         ),
         const SizedBox(height: 6),
-        Text(
-          '${widget.lower}  ←  Guess here  →  ${widget.upper}',
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+        Center(
+          child: Text(
+            '${widget.lower}  ←  Guess here  →  ${widget.upper}',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade700,
+            ),
+          ),
         ),
       ],
     );

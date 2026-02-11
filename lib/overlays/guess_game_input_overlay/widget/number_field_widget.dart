@@ -29,7 +29,7 @@ class NumberFieldWidget extends StatelessWidget {
               fontWeight: FontWeight.w900,
               fontSize: 16,
               color: kGameBorderColor,
-              letterSpacing: 1.2,
+              letterSpacing: 0.5,
             ),
           ),
         ),
@@ -47,7 +47,11 @@ class NumberFieldWidget extends StatelessWidget {
             enabled: enabled,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center, // Numbers look better centered in games
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+              letterSpacing: 0.5,
+            ),
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.symmetric(vertical: 12),
               border: InputBorder.none, // Remove standard border

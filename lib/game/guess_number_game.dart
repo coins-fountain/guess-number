@@ -22,6 +22,8 @@ class GuessNumberGame extends FlameGame {
   int? get currentUpper => state.upper;
 
   int get attemptsLeft => state.attemptsLeft;
+  bool get shouldShowAd => _logic.shouldShowAd;
+
 
   @override
   Future<void> onLoad() async {
