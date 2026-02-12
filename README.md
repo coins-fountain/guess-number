@@ -94,7 +94,7 @@ This app follows the <b>principle of least privilege</b>.
 <p align="center">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg" height="60"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="https://raw.githubusercontent.com/flame-engine/flame/master/packages/flame/assets/images/logo.png" height="60"/>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Flame-engine.png" height="60"/>
   &nbsp;&nbsp;&nbsp;
   <img src="https://raw.githubusercontent.com/jonataslaw/getx-community/master/get.png" height="60"/>
 </p>
