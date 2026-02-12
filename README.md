@@ -91,19 +91,16 @@ This app follows the <b>principle of least privilege</b>.
 
 <h2 align="center">🛠 Tech Stack</h2>
 
-<div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg" height="45" />
-  <img width="20"/>
-  <img src="https://raw.githubusercontent.com/flame-engine/flame/master/packages/flame/assets/images/logo.png" height="45"/>
-  <img width="20"/>
-  <img src="https://raw.githubusercontent.com/jonataslaw/getx-community/master/get.png" height="45"/>
-  <img width="20"/>
-  <img src="https://www.gstatic.com/admob/release/images/admob-logo-color.svg" height="45"/>
-</div>
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg" height="60"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/flame-engine/flame/master/packages/flame/assets/images/logo.png" height="60"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/jonataslaw/getx-community/master/get.png" height="60"/>
+</p>
+
 
 <h3 align="center">👨‍💻 Developer</h3> <p align="center"> <b>Fradricast Hutagalung</b> </p>
 
 ---
-
-<h2 align="center">📦 Build Instructions</h2>
 
