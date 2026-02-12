@@ -22,7 +22,6 @@ class GuessNumberGame extends FlameGame {
   int? get currentUpper => state.upper;
 
   int get attemptsLeft => state.attemptsLeft;
-  bool get shouldShowAd => _logic.shouldShowAd;
 
 
   @override
@@ -56,6 +55,10 @@ class GuessNumberGame extends FlameGame {
     if (state.status == GameStatus.lose && prev != GameStatus.lose) {
       add(LoseShakeEffect());
     }
+  }
+
+  void giveSecondChance() {
+    _logic.giveSecondChance();
   }
 
   @override

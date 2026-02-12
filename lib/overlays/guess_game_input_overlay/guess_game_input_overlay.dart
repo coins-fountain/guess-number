@@ -84,6 +84,7 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
               ? Icons.emoji_events_rounded
               : Icons.sentiment_very_dissatisfied,
           color: isWin ? Colors.green : Colors.redAccent,
+          status: state.status,
         );
       });
     }
@@ -127,13 +128,7 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(24), // Rounder corners
                           border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
+                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 10))],
                         ),
                         child: SingleChildScrollView(
                           child: Column(
@@ -146,10 +141,7 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                                 NumberFieldWidget(c: _maxController, title: 'Maximum', enabled: true),
                                 const SizedBox(height: 16),
                               ] else ...[
-                                RangeDisplayWidget(
-                                  min: int.parse(_minController.text),
-                                  max: int.parse(_maxController.text),
-                                ),
+                                RangeDisplayWidget(min: int.parse(_minController.text), max: int.parse(_maxController.text)),
                               ],
 
                               if (started && widget.game.currentLower != null && widget.game.currentUpper != null)
@@ -164,7 +156,7 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                                 ),
 
                               NumberFieldWidget(c: _guessController, title: 'Your guess', enabled: started),
-                              started ?const SizedBox(height: 16):  const SizedBox(height: 0),
+                              started ? const SizedBox(height: 16) : const SizedBox(height: 0),
                               Row(
                                 children: [
                                   Expanded(
@@ -193,7 +185,7 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                                   if (message.contains('Guess Range')) const Padding(padding: EdgeInsets.only(left: 6), child: AnimatedEyes()),
                                 ],
                               ),
-                              started ?const SizedBox(height: 16):  const SizedBox(height: 10),
+                              started ? const SizedBox(height: 16) : const SizedBox(height: 10),
                               GameButtonWidget(
                                 text: started ? 'GUESS 🎯' : 'START GAME 🚀',
                                 onTap: () {
@@ -212,13 +204,17 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
               ),
             ),
             Obx(() {
-              if (adController.isBannerAdLoaded.value && adController.bannerAd != null) {
-                return Container(
-                  alignment: Alignment.center,
-                  width: adController.bannerAd!.size.width.toDouble(),
-                  height: adController.bannerAd!.size.height.toDouble(),
-                  child: AdWidget(ad: adController.bannerAd!),
-                );
+              final isGameOver = widget.game.isGameOver;
+              final isGameStarted = widget.game.isGameStarted;
+              if (!isGameStarted || isGameOver) {
+                if (adController.isBannerAdLoaded.value && adController.bannerAd != null) {
+                  return Container(
+                    alignment: Alignment.center,
+                    width: adController.bannerAd!.size.width.toDouble(),
+                    height: adController.bannerAd!.size.height.toDouble(),
+                    child: AdWidget(ad: adController.bannerAd!),
+                  );
+                }
               }
               return const SizedBox.shrink();
             }),
@@ -251,6 +247,7 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
     required String subTitle,
     required IconData icon,
     required Color color,
+    required GameStatus status,
   }) {
     showGeneralDialog(
       context: context,
@@ -261,8 +258,7 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
         child: Material(
           color: Colors.transparent,
           child: ScaleTransition(
-            scale: CurvedAnimation(
-                parent: anim1, curve: Curves.elasticOut),
+            scale: CurvedAnimation(parent: anim1, curve: Curves.elasticOut),
             child: Container(
               width: 280,
               padding: const EdgeInsets.all(20),
@@ -270,53 +266,73 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(28),
               ),
-              child: Column(
+              child: Obx(() => Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(icon, size: 80, color: color),
                   const SizedBox(height: 16),
-                  Text(title,
-                      style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     subTitle,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
+                  if (status == GameStatus.lose &&
+                      adController.isRewardedAdLoaded.value)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: GameButtonWidget(
+                        text: "Try Again",
+                        onTap: () {
+                          adController.showRewardedAd(
+                            onRewardEarned: () {
+                              Navigator.pop(context);
+                              widget.game.giveSecondChance();
+                              _guessController.clear();
+                            },
+                          );
+                        },
+                        color: Colors.orange,
+                      ),
+                    ),
                   GameButtonWidget(
                     text: "CONTINUE",
                     onTap: () {
                       Navigator.pop(context);
                       _guessController.clear();
-                      Future.delayed(const Duration(milliseconds: 400), () {
-                        if (widget.game.shouldShowAd) {
-                          adController.showInterstitial(
-                            onClosed: () {
-                              widget.game.overlays.add('GuessInput');
-                            },
-                          );
-                        } else {
-                          widget.game.overlays.add('GuessInput');
-                        }
-                      });
 
+                      Future.delayed(
+                          const Duration(milliseconds: 300), () {
+                        adController.showInterstitial(
+                          onClosed: () {
+                            widget.game.overlays.add('GuessInput');
+                          },
+                        );
+                      });
                     },
                     color: color,
                   ),
                 ],
-              ),
+              )),
             ),
           ),
         ),
       ),
     );
   }
+
 
   Widget _buildHintWidget() {
     if (_hintType == GuessHintType.none) {
@@ -325,28 +341,20 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
         child: Text(
           message,
           key: const ValueKey('no-hint'),
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-            color: Colors.black87,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87),
         ),
       );
     }
 
     final isLow = _hintType == GuessHintType.tooLow;
-    final arrowIcon =
-    isLow ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded;
+    final arrowIcon = isLow ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded;
     final arrowColor = isLow ? Colors.redAccent : Colors.orange;
 
     return Container(
       key: ValueKey('${_hintType.name}-$_shakeTick'),
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: arrowColor.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(18),
-      ),
+      decoration: BoxDecoration(color: arrowColor.withOpacity(0.08), borderRadius: BorderRadius.circular(18)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -355,43 +363,26 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
             duration: const Duration(milliseconds: 350),
             curve: Curves.easeOutBack,
             builder: (context, value, child) {
-              return Transform.scale(
-                scale: value,
-                child: child,
-              );
+              return Transform.scale(scale: value, child: child);
             },
-            child: Icon(
-              arrowIcon,
-              color: arrowColor,
-              size: 42,
-            ),
+            child: Icon(arrowIcon, color: arrowColor, size: 42),
           ),
 
           const SizedBox(height: 8),
           Text(
             isLow ? 'Too Low' : 'Too High',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: arrowColor,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: arrowColor),
           ),
 
           const SizedBox(height: 4),
           Text(
             '$_triesLeft Tries Remaining',
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.black54,
-            ),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.black54),
           ),
         ],
       ),
     );
   }
-
-
 
   @override
   void dispose() {

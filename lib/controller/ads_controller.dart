@@ -1,18 +1,37 @@
 import 'dart:io';
-import 'dart:ui';
-
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:guess_number_game/controller/consent_controller.dart';
 
 class AdController extends GetxController {
   BannerAd? bannerAd;
   var isBannerAdLoaded = false.obs;
+  final ConsentController _consentController =
+  Get.find<ConsentController>();
+
+  AdRequest get _adRequest => AdRequest(
+    nonPersonalizedAds:
+    !_consentController.isConsentGiven.value,
+  );
+
 
   InterstitialAd? interstitialAd;
   var isInterstitialAdLoaded = false.obs;
 
+
   RewardedAd? rewardedAd;
   var isRewardedAdLoaded = false.obs;
+
+  DateTime? _lastInterstitialShown;
+  final Duration _interstitialCooldown = const Duration(seconds: 75);
+
+  bool get _canShowInterstitial {
+    if (_lastInterstitialShown == null) return true;
+
+    final diff = DateTime.now().difference(_lastInterstitialShown!);
+    return diff >= _interstitialCooldown;
+  }
+
   String get bannerAdUnitId {
     if (Platform.isAndroid) {
       return 'ca-app-pub-3940256099942544/6300978111';
@@ -62,7 +81,7 @@ class AdController extends GetxController {
     bannerAd = BannerAd(
       adUnitId: bannerAdUnitId,
       size: AdSize.banner,
-      request: const AdRequest(),
+      request: _adRequest,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           isBannerAdLoaded.value = true;
@@ -82,7 +101,7 @@ class AdController extends GetxController {
   void _loadInterstitialAd() {
     InterstitialAd.load(
       adUnitId: interstitialAdUnitId,
-      request: const AdRequest(),
+      request: _adRequest,
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
           interstitialAd = ad;
@@ -111,7 +130,7 @@ class AdController extends GetxController {
   void _loadRewardedAd() {
     RewardedAd.load(
       adUnitId: rewardedAdUnitId,
-      request: const AdRequest(),
+      request: _adRequest,
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
           rewardedAd = ad;
@@ -134,37 +153,46 @@ class AdController extends GetxController {
     }
   }
 
-  void showRewardedAd({required Function onRewardEarned}) {
-    if (rewardedAd != null && isRewardedAdLoaded.value) {
-      rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-        onAdDismissedFullScreenContent: (ad) {
-          ad.dispose();
-          _loadRewardedAd(); // Preload next ad
-        },
-        onAdFailedToShowFullScreenContent: (ad, error) {
-          ad.dispose();
-          _loadRewardedAd();
-        },
-      );
+  void showRewardedAd({required void Function() onRewardEarned}) {
+    if (rewardedAd == null || !isRewardedAdLoaded.value) return;
 
-      rewardedAd!.show(
-        onUserEarnedReward: (ad, reward) {
-          onRewardEarned();
-        },
-      );
-
-      rewardedAd = null;
-      isRewardedAdLoaded.value = false;
-    }
-  }
-  void showInterstitial({VoidCallback? onClosed}) {
-    if (interstitialAd == null) return;
-
-    interstitialAd!.fullScreenContentCallback =
+    rewardedAd!.fullScreenContentCallback =
         FullScreenContentCallback(
           onAdDismissedFullScreenContent: (ad) {
             ad.dispose();
-            _loadInterstitialAd(); // preload next
+            _loadRewardedAd();
+          },
+          onAdFailedToShowFullScreenContent: (ad, error) {
+            ad.dispose();
+            _loadRewardedAd();
+          },
+        );
+
+    rewardedAd!.show(
+      onUserEarnedReward: (ad, reward) {
+        onRewardEarned();
+      },
+    );
+
+    rewardedAd = null;
+    isRewardedAdLoaded.value = false;
+  }
+  void showInterstitial({void Function()? onClosed}) {
+    if (interstitialAd == null) {
+      onClosed?.call();
+      return;
+    }
+
+    if (!_canShowInterstitial) {
+      onClosed?.call();
+      return;
+    }
+    interstitialAd!.fullScreenContentCallback =
+        FullScreenContentCallback(
+          onAdDismissedFullScreenContent: (ad) {
+            _lastInterstitialShown = DateTime.now();
+            ad.dispose();
+            _loadInterstitialAd();
             onClosed?.call();
           },
           onAdFailedToShowFullScreenContent: (ad, error) {
@@ -177,4 +205,6 @@ class AdController extends GetxController {
     interstitialAd!.show();
     interstitialAd = null;
   }
+
+
 }

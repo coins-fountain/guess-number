@@ -12,10 +12,7 @@ class GuessLogicComponent extends Component {
 
   int _maxAttempts = 4;
 
-  int _gamesPlayed = 0;
-  bool _shouldShowAdThisRound = false;
 
-  bool get shouldShowAd => _shouldShowAdThisRound;
 
 
   @override
@@ -30,21 +27,7 @@ class GuessLogicComponent extends Component {
     return rangeSize.bitLength;
   }
 
-  void _evaluateAdDisplay() {
-    _gamesPlayed++;
-    if (_gamesPlayed == 1) {
-      _shouldShowAdThisRound = false;
-      return;
-    }
 
-    final randomChance = _random.nextDouble();
-
-    if (randomChance < 0.2) {
-      _shouldShowAdThisRound = true;
-    } else {
-      _shouldShowAdThisRound = false;
-    }
-  }
 
 
   void start(int min, int max) {
@@ -73,7 +56,6 @@ class GuessLogicComponent extends Component {
 
     //  WIN
     if (guess == _target) {
-      _evaluateAdDisplay();
 
       stateComponent.setState(
         s.copyWith(
@@ -88,7 +70,6 @@ class GuessLogicComponent extends Component {
 
     // LOSE
     if (updatedAttempts <= 0) {
-      _evaluateAdDisplay();
       stateComponent.setState(
         s.copyWith(
           status: GameStatus.lose,
@@ -112,5 +93,20 @@ class GuessLogicComponent extends Component {
       ),
     );
   }
+
+  void giveSecondChance() {
+    final s = stateComponent.state;
+
+    if (s.status != GameStatus.lose) return;
+
+    stateComponent.setState(
+      s.copyWith(
+        status: GameStatus.playing,
+        attemptsLeft: s.attemptsLeft + 1,
+        message: "🎁 Second Chance! 1 Try Left",
+      ),
+    );
+  }
+
 }
 
