@@ -5,6 +5,7 @@ import 'package:guess_number_game/game/components/effect/lose_effect_component.d
 import 'package:guess_number_game/game/components/effect/win_effect_component.dart';
 import 'package:guess_number_game/game/components/guess_game_state.dart';
 import 'package:guess_number_game/game/state/guess_number_state.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'components/guess_logic_component.dart';
 
 class GuessNumberGame extends FlameGame {
@@ -61,11 +62,21 @@ class GuessNumberGame extends FlameGame {
     _logic.giveSecondChance();
   }
 
+
+  Future<void> openPrivacyPolicy() async {
+    final Uri url = Uri.parse(
+      'https://coins-fountain.github.io/privacy-policy-games/',
+    );
+
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   @override
   void update(double dt) {
     super.update(dt);
   }
-
   @override
   Color backgroundColor() => Colors.transparent;
 }

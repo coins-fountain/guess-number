@@ -50,4 +50,24 @@ class ConsentController extends GetxController {
 
     return completer.future;
   }
+  Future<void> showPrivacyOptionsForm() async {
+    if (!isConsentFormAvailable.value) return;
+
+    final completer = Completer<void>();
+
+    ConsentForm.showPrivacyOptionsForm(
+          (FormError? error) async {
+        final status =
+        await ConsentInformation.instance.getConsentStatus();
+
+        isConsentGiven.value =
+            status == ConsentStatus.obtained;
+
+        completer.complete();
+      },
+    );
+
+    return completer.future;
+  }
+
 }

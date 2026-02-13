@@ -68,6 +68,21 @@ class AdController extends GetxController {
   }
 
 
+  void reloadAllAds() {
+    bannerAd?.dispose();
+    interstitialAd?.dispose();
+    rewardedAd?.dispose();
+
+    isBannerAdLoaded.value = false;
+    isInterstitialAdLoaded.value = false;
+    isRewardedAdLoaded.value = false;
+
+    _loadBannerAd();
+    _loadInterstitialAd();
+    _loadRewardedAd();
+  }
+
+
 
   @override
   void onClose() {

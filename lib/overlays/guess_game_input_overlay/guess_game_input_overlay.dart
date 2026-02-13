@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:guess_number_game/controller/ads_controller.dart';
+import 'package:guess_number_game/controller/consent_controller.dart';
 import 'package:guess_number_game/game/components/guess_logic_component.dart';
 import 'package:guess_number_game/game/guess_number_game.dart';
 import 'package:guess_number_game/game/state/guess_number_state.dart';
@@ -35,6 +36,13 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
   GuessHintType _hintType = GuessHintType.none;
   int _triesLeft = 0;
   int _shakeTick = 0;
+
+  Future<void> _openPrivacySettings() async {
+    final consentController = Get.find<ConsentController>();
+    final adController = Get.find<AdController>();
+    await consentController.showPrivacyOptionsForm();
+    adController.reloadAllAds();
+  }
 
   void startGame() {
     final min = int.tryParse(_minController.text);
@@ -126,9 +134,14 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(24), // Rounder corners
-                          border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 10))],
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.06),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
                         child: SingleChildScrollView(
                           child: Column(
@@ -206,18 +219,58 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
             Obx(() {
               final isGameOver = widget.game.isGameOver;
               final isGameStarted = widget.game.isGameStarted;
-              if (!isGameStarted || isGameOver) {
-                if (adController.isBannerAdLoaded.value && adController.bannerAd != null) {
-                  return Container(
+
+              final shouldShowAd =
+                  (!isGameStarted || isGameOver) &&
+                      adController.isBannerAdLoaded.value &&
+                      adController.bannerAd != null;
+
+              if (!shouldShowAd) {
+                return const SizedBox.shrink();
+              }
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.06),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.black12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _privacyMiniButton(
+                          icon: Icons.description_outlined,
+                          label: "Privacy Policy",
+                          onTap: widget.game.openPrivacyPolicy,
+                        ),
+                        Container(
+                          width: 1,
+                          height: 18,
+                          color: Colors.black12,
+                        ),
+                        _privacyMiniButton(
+                          icon: Icons.tune_rounded,
+                          label: "Ad Settings",
+                          onTap: _openPrivacySettings,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
                     alignment: Alignment.center,
                     width: adController.bannerAd!.size.width.toDouble(),
                     height: adController.bannerAd!.size.height.toDouble(),
                     child: AdWidget(ad: adController.bannerAd!),
-                  );
-                }
-              }
-              return const SizedBox.shrink();
+                  ),
+                ],
+              );
             }),
+
+
           ],
         ),
       ),
@@ -383,6 +436,36 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
       ),
     );
   }
+
+  Widget _privacyMiniButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: Colors.black54,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.black54,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   void dispose() {
