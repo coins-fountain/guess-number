@@ -28,6 +28,7 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
   final _minController = TextEditingController(text: '0');
   final _maxController = TextEditingController(text: '100');
   final _guessController = TextEditingController();
+  final ConsentController consentController = Get.find<ConsentController>();
   final AdController adController = Get.find<AdController>();
 
   bool _showLoseFlash = false;
@@ -38,11 +39,18 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
   int _shakeTick = 0;
 
   Future<void> _openPrivacySettings() async {
-    final consentController = Get.find<ConsentController>();
-    final adController = Get.find<AdController>();
-    await consentController.showPrivacyOptionsForm();
-    adController.reloadAllAds();
+    final before = consentController.isConsentGiven.value;
+
+    await consentController.showPrivacyOptions();
+
+    final after = consentController.isConsentGiven.value;
+
+    if (before != after) {
+      adController.reloadAllAds();
+    }
   }
+
+
 
   void startGame() {
     final min = int.tryParse(_minController.text);
@@ -217,6 +225,8 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
               ),
             ),
             Obx(() {
+              final showAdSettings =
+                  consentController.isRequestLocationInEeaOrUk.value;
               final isGameOver = widget.game.isGameOver;
               final isGameStarted = widget.game.isGameStarted;
 
@@ -224,7 +234,6 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                   (!isGameStarted || isGameOver) &&
                       adController.isBannerAdLoaded.value &&
                       adController.bannerAd != null;
-
               if (!shouldShowAd) {
                 return const SizedBox.shrink();
               }
@@ -247,16 +256,18 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                           label: "Privacy Policy",
                           onTap: widget.game.openPrivacyPolicy,
                         ),
-                        Container(
-                          width: 1,
-                          height: 18,
-                          color: Colors.black12,
-                        ),
-                        _privacyMiniButton(
-                          icon: Icons.tune_rounded,
-                          label: "Ad Settings",
-                          onTap: _openPrivacySettings,
-                        ),
+                        if (showAdSettings) ...[
+                          Container(
+                            width: 1,
+                            height: 18,
+                            color: Colors.black12,
+                          ),
+                          _privacyMiniButton(
+                            icon: Icons.tune_rounded,
+                            label: "Ad Settings",
+                            onTap: _openPrivacySettings,
+                          ),
+                        ],
                       ],
                     ),
                   ),

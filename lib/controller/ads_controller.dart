@@ -65,6 +65,10 @@ class AdController extends GetxController {
     _loadBannerAd();
     _loadInterstitialAd();
     _loadRewardedAd();
+    ever(_consentController.isConsentGiven, (bool value) {
+      print("Consent changed -> Reloading ads");
+      reloadAllAds();
+    });
   }
 
 
