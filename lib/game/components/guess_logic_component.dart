@@ -96,14 +96,19 @@ class GuessLogicComponent extends Component {
 
   void giveSecondChance() {
     final s = stateComponent.state;
-
-    if (s.status != GameStatus.lose) return;
-
+    final currentMin = s.min;
+    final currentMax = s.max;
+    _target = _random.nextInt(currentMax - currentMin + 1) + currentMin;
+    _maxAttempts = _calculateMaxAttempts(currentMin, currentMax);
     stateComponent.setState(
-      s.copyWith(
+      GuessGameState(
+        min: currentMin,
+        max: currentMax,
+        lower: currentMin,
+        upper: currentMax,
+        attemptsLeft: _maxAttempts,
         status: GameStatus.playing,
-        attemptsLeft: s.attemptsLeft + 1,
-        message: "🎁 Second Chance! 1 Try Left",
+        message: "New game started! Try to guess the new number.",
       ),
     );
   }

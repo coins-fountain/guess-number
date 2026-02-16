@@ -365,6 +365,10 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                               Navigator.pop(context);
                               widget.game.giveSecondChance();
                               _guessController.clear();
+                              setState(() {
+                                _hintType = GuessHintType.none;
+                                message = "New target set! Good luck!";
+                              });
                             },
                           );
                         },
