@@ -163,21 +163,21 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                                 const SizedBox(height: 16),
                               ] else ...[
                                 RangeDisplayWidget(min: int.parse(_minController.text), max: int.parse(_maxController.text)),
+                                if (started && widget.game.currentLower != null && widget.game.currentUpper != null)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    child: DecisionRangeBar(
+                                      min: int.parse(_minController.text),
+                                      max: int.parse(_maxController.text),
+                                      lower: widget.game.currentLower!,
+                                      upper: widget.game.currentUpper!,
+                                    ),
+                                  ),
+
+                                NumberFieldWidget(c: _guessController, title: 'Your guess', enabled: started),
+                                const SizedBox(height: 16),
                               ],
 
-                              if (started && widget.game.currentLower != null && widget.game.currentUpper != null)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  child: DecisionRangeBar(
-                                    min: int.parse(_minController.text),
-                                    max: int.parse(_maxController.text),
-                                    lower: widget.game.currentLower!,
-                                    upper: widget.game.currentUpper!,
-                                  ),
-                                ),
-
-                              NumberFieldWidget(c: _guessController, title: 'Your guess', enabled: started),
-                              started ? const SizedBox(height: 16) : const SizedBox(height: 0),
                               Row(
                                 children: [
                                   Expanded(
@@ -330,7 +330,7 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(28),
               ),
-              child: Obx(() => Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(icon, size: 80, color: color),
@@ -393,7 +393,6 @@ class _GuessInputOverlayState extends State<GuessInputOverlay> {
             ),
           ),
         ),
-      ),
     );
   }
 
