@@ -27,7 +27,7 @@
         tools:node="remove"/>
 
     <application
-        android:label="guess_number"
+        android:label="Guess Games"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
